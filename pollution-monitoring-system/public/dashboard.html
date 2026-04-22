@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard – Pollution Monitor</title>
+
+    <!-- Leaflet Map CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+<div class="page-wrapper">
+
+    <!-- ── NAVBAR ─────────────────────────────────────────── -->
+    <nav class="navbar">
+        <div class="nav-brand">
+            <span class="brand-icon">🌍</span>
+            POLLUTION MONITOR
+        </div>
+        <div class="nav-right">
+            <a id="adminNavLink" href="/admin.html" class="btn btn-outline btn-sm" style="display:none">
+                ⚙️ Admin Panel
+            </a>
+            <div class="user-badge">
+                <span>👤</span>
+                <span id="navUserName">User</span>
+                <span id="navUserRole" class="role-pill">USER</span>
+            </div>
+            <button class="btn btn-danger btn-sm" id="logoutBtn">🚪 Logout</button>
+        </div>
+    </nav>
+
+    <!-- ── MAIN CONTENT ───────────────────────────────────── -->
+    <div class="container" style="padding-top:24px;padding-bottom:40px">
+
+        <!-- SDG Banner -->
+        <div class="sdg-banner">
+            <span>🌱 Supporting UN SDGs:</span>
+            <div class="sdg-tags">
+                <span class="sdg-tag">SDG 3</span>
+                <span class="sdg-tag">SDG 11</span>
+                <span class="sdg-tag">SDG 13</span>
+            </div>
+            <span>— Good Health, Sustainable Cities, Climate Action</span>
+        </div>
+
+        <!-- ── ANALYTICS STATS ──────────────────────────── -->
+        <div class="stats-grid" style="margin-bottom:24px">
+            <div class="stat-card">
+                <div class="stat-value" id="statTotal">—</div>
+                <div class="stat-label">📍 Areas Monitored</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value" id="statAvgAQI">—</div>
+                <div class="stat-label">📊 Average AQI</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value" style="color:var(--danger)" id="statMaxAQI">—</div>
+                <div class="stat-label">🔺 Highest AQI</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value" style="color:var(--danger)" id="statHazardous">—</div>
+                <div class="stat-label">🚨 Hazardous Areas</div>
+            </div>
+        </div>
+
+        <!-- ── TABS ──────────────────────────────────────── -->
+        <div class="tabs">
+            <button class="tab-btn active" data-tab="search" onclick="switchDashTab('search')">🔍 AQI Search</button>
+            <button class="tab-btn" data-tab="map" onclick="switchDashTab('map')">🗺️ Map</button>
+            <button class="tab-btn" data-tab="dataentry" onclick="switchDashTab('dataentry')">📝 Data Entry</button>
+            <button class="tab-btn" data-tab="records" onclick="switchDashTab('records')">📋 Area Records</button>
+            <button class="tab-btn" data-tab="alerts" onclick="switchDashTab('alerts')">🚨 Alerts</button>
+            <button class="tab-btn" data-tab="analytics" onclick="switchDashTab('analytics')">📊 Analytics</button>
+        </div>
+
+        <!-- ── TAB: AQI SEARCH ────────────────────────────── -->
+        <div class="tab-content active" id="tab-search">
+            <div class="grid-2" style="gap:24px">
+
+                <!-- Search Panel -->
+                <div>
+                    <div class="card">
+                        <div class="card-title">🔍 Real-Time AQI Search</div>
+                        <p style="font-size:0.85rem;color:var(--text-secondary);margin-bottom:16px">
+                            Search any city worldwide to get live Air Quality Index data from WAQI API.
+                        </p>
+                        <div class="search-container">
+                            <input type="text" id="citySearch" placeholder="Enter city name (e.g. Mumbai, Delhi, London)…">
+                            <button class="btn btn-primary" id="searchBtn" onclick="searchCity()">🔍 Search</button>
+                        </div>
+
+                        <!-- Quick city buttons -->
+                        <div style="margin-bottom:16px">
+                            <div style="font-size:0.78rem;color:var(--text-secondary);margin-bottom:8px;text-transform:uppercase;letter-spacing:0.08em">Quick Select</div>
+                            <div style="display:flex;flex-wrap:wrap;gap:6px">
+                                <button class="btn btn-outline btn-sm" onclick="quickSearch('Mumbai')">Mumbai</button>
+                                <button class="btn btn-outline btn-sm" onclick="quickSearch('Pune')">Pune</button>
+                                <button class="btn btn-outline btn-sm" onclick="quickSearch('Delhi')">Delhi</button>
+                                <button class="btn btn-outline btn-sm" onclick="quickSearch('Bangalore')">Bangalore</button>
+                                <button class="btn btn-outline btn-sm" onclick="quickSearch('Nagpur')">Nagpur</button>
+                                <button class="btn btn-outline btn-sm" onclick="showIndiaMap()">Show India Map</button>
+                            </div>
+                        </div>
+
+                        <!-- AQI Scale Reference -->
+                        <div style="background:rgba(255,255,255,0.03);border-radius:10px;padding:14px">
+                            <div style="font-size:0.78rem;color:var(--text-secondary);margin-bottom:10px;text-transform:uppercase;letter-spacing:0.08em">AQI Scale Reference</div>
+                            <div style="display:flex;flex-direction:column;gap:6px">
+                                <div style="display:flex;align-items:center;gap:10px;font-size:0.82rem">
+                                    <span style="width:12px;height:12px;border-radius:50%;background:#2ed573;display:inline-block;flex-shrink:0"></span>
+                                    <span style="color:var(--text-secondary)">0–50</span>
+                                    <span style="color:#2ed573;font-weight:600">Good / Low</span>
+                                </div>
+                                <div style="display:flex;align-items:center;gap:10px;font-size:0.82rem">
+                                    <span style="width:12px;height:12px;border-radius:50%;background:#a3d977;display:inline-block;flex-shrink:0"></span>
+                                    <span style="color:var(--text-secondary)">51–100</span>
+                                    <span style="color:#a3d977;font-weight:600">Moderate</span>
+                                </div>
+                                <div style="display:flex;align-items:center;gap:10px;font-size:0.82rem">
+                                    <span style="width:12px;height:12px;border-radius:50%;background:#ffa502;display:inline-block;flex-shrink:0"></span>
+                                    <span style="color:var(--text-secondary)">101–150</span>
+                                    <span style="color:#ffa502;font-weight:600">Unhealthy (Sensitive)</span>
+                                </div>
+                                <div style="display:flex;align-items:center;gap:10px;font-size:0.82rem">
+                                    <span style="width:12px;height:12px;border-radius:50%;background:#ff6348;display:inline-block;flex-shrink:0"></span>
+                                    <span style="color:var(--text-secondary)">151–200</span>
+                                    <span style="color:#ff6348;font-weight:600">Unhealthy / High</span>
+                                </div>
+                                <div style="display:flex;align-items:center;gap:10px;font-size:0.82rem">
+                                    <span style="width:12px;height:12px;border-radius:50%;background:#ff4757;display:inline-block;flex-shrink:0"></span>
+                                    <span style="color:var(--text-secondary)">201–300</span>
+                                    <span style="color:#ff4757;font-weight:600">Very Unhealthy</span>
+                                </div>
+                                <div style="display:flex;align-items:center;gap:10px;font-size:0.82rem">
+                                    <span style="width:12px;height:12px;border-radius:50%;background:#c0392b;display:inline-block;flex-shrink:0"></span>
+                                    <span style="color:var(--text-secondary)">301+</span>
+                                    <span style="color:#c0392b;font-weight:600">Hazardous</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- AQI Result Panel -->
+                <div>
+                    <div class="card" style="min-height:300px">
+                        <div class="card-title">📊 AQI Results</div>
+                        <div id="aqiResult">
+                            <div class="empty-state">
+                                <div class="empty-icon">🔍</div>
+                                Search a city above to see real-time AQI data
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+        <!-- ── TAB: MAP ───────────────────────────────────── -->
+        <div class="tab-content" id="tab-map">
+            <div class="card">
+                <div class="card-title">🗺️ Pollution Map</div>
+                <p style="font-size:0.85rem;color:var(--text-secondary);margin-bottom:16px">
+                    Search a city in the AQI Search tab to pin it on the map. Powered by OpenStreetMap (free, no API key required).
+                </p>
+                <div id="map"></div>
+            </div>
+        </div>
+
+        <!-- ── TAB: RECORDS ───────────────────────────────── -->
+        <div class="tab-content" id="tab-records">
+            <div class="card">
+                <div class="section-header">
+                    <div class="card-title">📋 Area Pollution Records</div>
+                    <span style="font-size:0.82rem;color:var(--text-secondary)">Data from database</span>
+                </div>
+                <div class="table-wrapper">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Area</th>
+                                <th>Level</th>
+                                <th>AQI</th>
+                                <th>Alert</th>
+                                <th>Last Updated</th>
+                            </tr>
+                        </thead>
+                        <tbody id="dbTableBody">
+                            <tr><td colspan="5">
+                                <div class="empty-state"><span class="spinner" style="width:30px;height:30px"></span></div>
+                            </td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- ── TAB: ALERTS ────────────────────────────────── -->
+        <div class="tab-content" id="tab-alerts">
+            <div class="card">
+                <div class="card-title">🚨 Admin Alerts &amp; Warnings</div>
+                <p style="font-size:0.85rem;color:var(--text-secondary);margin-bottom:16px">
+                    Active alerts and warnings issued by administrators for monitored areas.
+                </p>
+                <div id="adminAlerts">
+                    <div class="empty-state"><span class="spinner" style="width:30px;height:30px"></span></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ── TAB: DATA ENTRY ────────────────────────────── -->
+        <div class="tab-content" id="tab-dataentry">
+            <div class="card">
+                <div class="card-title">📝 Add Pollution Data</div>
+                <p style="font-size:0.85rem;color:var(--text-secondary);margin-bottom:16px">
+                    Add a new city pollution record. Admin users can submit data directly from the dashboard.
+                </p>
+                <form id="dataEntryForm" style="display:grid;gap:16px;">
+                    <div class="input-group">
+                        <label>City / Area</label>
+                        <input type="text" id="entryCity" placeholder="Mumbai, Pune, Delhi..." required>
+                    </div>
+                    <div class="grid-2" style="gap:16px;">
+                        <div class="input-group">
+                            <label>AQI Value</label>
+                            <input type="number" id="entryAQI" placeholder="AQI value" min="0" required>
+                        </div>
+                        <div class="input-group">
+                            <label>Pollution Level</label>
+                            <select id="entryLevel">
+                                <option value="Low">Low</option>
+                                <option value="Moderate">Moderate</option>
+                                <option value="Medium">Medium</option>
+                                <option value="High">High</option>
+                                <option value="Very High">Very High</option>
+                                <option value="Hazardous">Hazardous</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="input-group">
+                        <label>Alert Message</label>
+                        <textarea id="entryAlert" placeholder="Optional alert or advisory message..."></textarea>
+                    </div>
+                    <div id="dataEntryMessage" class="form-message"></div>
+                    <button type="button" class="btn btn-primary btn-full" id="submitDataEntryBtn">💾 Submit Entry</button>
+                </form>
+            </div>
+        </div>
+
+        <!-- ── TAB: ANALYTICS ────────────────────────────── -->
+        <div class="tab-content" id="tab-analytics">
+            <div class="card">
+                <div class="card-title">📊 Pollution Level Distribution</div>
+                <div class="chart-container" style="height:260px">
+                    <canvas id="pollutionChart"></canvas>
+                </div>
+            </div>
+        </div>
+
+    </div><!-- /container -->
+</div>
+
+<!-- Toast container -->
+<div class="toast-container"></div>
+
+<!-- Leaflet JS -->
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<!-- Chart.js -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+
+<script src="/js/api.js"></script>
+<script src="/js/dashboard.js"></script>
+
+<script>
+// Quick search helper
+function quickSearch(city) {
+    document.getElementById('citySearch').value = city;
+    switchDashTab('search');
+    searchCity();
+}
+</script>
+</body>
+</html>

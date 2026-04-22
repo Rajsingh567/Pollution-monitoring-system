@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Panel – Pollution Monitor</title>
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+<div class="page-wrapper">
+
+    <!-- ── NAVBAR ─────────────────────────────────────────── -->
+    <nav class="navbar">
+        <div class="nav-brand">
+            <span class="brand-icon">⚙️</span>
+            ADMIN PANEL
+        </div>
+        <div class="nav-right">
+            <a href="/dashboard.html" class="btn btn-outline btn-sm">🏠 Dashboard</a>
+            <div class="user-badge">
+                <span>👤</span>
+                <span id="navUserName">Admin</span>
+                <span id="navUserRole" class="role-pill admin">ADMIN</span>
+            </div>
+            <button class="btn btn-danger btn-sm" id="logoutBtn">🚪 Logout</button>
+        </div>
+    </nav>
+
+    <!-- ── MAIN CONTENT ───────────────────────────────────── -->
+    <div class="container" style="padding-top:24px;padding-bottom:40px">
+
+        <!-- Page Header -->
+        <div style="margin-bottom:24px">
+            <h2 style="font-family:var(--font-display);font-size:1.8rem;font-weight:700;letter-spacing:0.06em">
+                🛡️ Admin Control Center
+            </h2>
+            <p style="color:var(--text-secondary);font-size:0.9rem;margin-top:4px">
+                Manage pollution records, view analytics, and monitor all registered users.
+            </p>
+        </div>
+
+        <!-- ── STATS ──────────────────────────────────────── -->
+        <div class="stats-grid" style="margin-bottom:24px">
+            <div class="stat-card">
+                <div class="stat-value" id="statTotal">—</div>
+                <div class="stat-label">📍 Total Areas</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value" id="statAvgAQI">—</div>
+                <div class="stat-label">📊 Avg AQI</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value" style="color:var(--danger)" id="statMaxAQI">—</div>
+                <div class="stat-label">🔺 Max AQI</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value" style="color:var(--danger)" id="statHazardous">—</div>
+                <div class="stat-label">🚨 Hazardous</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value" style="color:var(--info)" id="totalUsersCount">—</div>
+                <div class="stat-label">👥 Total Users</div>
+            </div>
+        </div>
+
+        <!-- ── TABS ──────────────────────────────────────── -->
+        <div class="tabs">
+            <button class="tab-btn" data-tab="records" onclick="switchAdminTab('records')">📋 Records</button>
+            <button class="tab-btn" data-tab="add" onclick="switchAdminTab('add')">➕ Add Record</button>
+            <button class="tab-btn" data-tab="analytics" onclick="switchAdminTab('analytics')">📊 Analytics</button>
+            <button class="tab-btn" data-tab="users" onclick="switchAdminTab('users');loadUsers()">👥 Users</button>
+        </div>
+
+        <!-- ── TAB: RECORDS ───────────────────────────────── -->
+        <div class="tab-content" id="tab-records">
+            <div class="card">
+                <div class="section-header">
+                    <div class="card-title">📋 Pollution Records</div>
+                    <div style="display:flex;gap:10px;align-items:center">
+                        <input type="text" id="tableSearch" placeholder="🔍 Filter by area or level…"
+                            style="background:rgba(255,255,255,0.04);border:1px solid var(--border);border-radius:8px;padding:8px 14px;color:var(--text-primary);font-family:var(--font-body);font-size:0.85rem;outline:none;width:220px">
+                        <button class="btn btn-primary btn-sm" onclick="loadRecords()">🔄 Refresh</button>
+                    </div>
+                </div>
+                <div class="table-wrapper">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Area Name</th>
+                                <th>Level</th>
+                                <th>AQI</th>
+                                <th>Alert Message</th>
+                                <th>Last Updated</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="adminTableBody">
+                            <tr><td colspan="6">
+                                <div class="empty-state"><span class="spinner" style="width:30px;height:30px"></span></div>
+                            </td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- ── TAB: ADD RECORD ────────────────────────────── -->
+        <div class="tab-content" id="tab-add">
+            <div style="max-width:560px">
+                <div class="card">
+                    <div class="card-title">➕ Add New Pollution Record</div>
+                    <form id="addForm" novalidate>
+
+                        <div class="input-group">
+                            <label>Area / City Name *</label>
+                            <input type="text" id="addArea" placeholder="e.g. Mumbai, Nagpur, Chennai" required>
+                        </div>
+
+                        <div class="grid-2">
+                            <div class="input-group">
+                                <label>AQI Value *</label>
+                                <input type="number" id="addAQI" placeholder="0–500" min="0" max="999" required>
+                            </div>
+                            <div class="input-group">
+                                <label>Pollution Level</label>
+                                <select id="addLevel">
+                                    <option value="Low">Low (0–50)</option>
+                                    <option value="Moderate">Moderate (51–100)</option>
+                                    <option value="Medium">Medium (101–150)</option>
+                                    <option value="High">High (151–200)</option>
+                                    <option value="Very High">Very High (201–300)</option>
+                                    <option value="Hazardous">Hazardous (301+)</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="input-group">
+                            <label>Alert Message</label>
+                            <textarea id="addAlert" placeholder="Optional: Add a public warning or advisory message…"></textarea>
+                        </div>
+
+                        <div style="background:var(--accent-dim);border:1px solid var(--border);border-radius:8px;padding:12px;margin-bottom:16px;font-size:0.82rem;color:var(--text-secondary)">
+                            💡 <strong style="color:var(--accent)">Tip:</strong> The pollution level will auto-fill based on the AQI value you enter. You can override it manually.
+                        </div>
+
+                        <button type="submit" class="btn btn-primary btn-full">
+                            💾 Save Record
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- ── TAB: ANALYTICS ────────────────────────────── -->
+        <div class="tab-content" id="tab-analytics">
+            <div class="grid-2" style="gap:20px">
+
+                <!-- Bar Chart: AQI per area -->
+                <div class="card">
+                    <div class="card-title">📊 AQI by Area (Top 10)</div>
+                    <div class="chart-container" style="height:260px">
+                        <canvas id="areaBarChart"></canvas>
+                    </div>
+                </div>
+
+                <!-- Doughnut: Level distribution -->
+                <div class="card">
+                    <div class="card-title">🎯 Pollution Level Distribution</div>
+                    <div class="chart-container" style="height:260px">
+                        <canvas id="levelDoughnut"></canvas>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- AQI Level Info -->
+            <div class="card" style="margin-top:20px">
+                <div class="card-title">📖 AQI Categories Reference</div>
+                <div style="overflow-x:auto">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Category</th>
+                                <th>AQI Range</th>
+                                <th>Health Implication</th>
+                                <th>Cautionary Statement</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><span class="badge badge-low">Good / Low</span></td>
+                                <td>0–50</td>
+                                <td>Air quality is satisfactory</td>
+                                <td>None required</td>
+                            </tr>
+                            <tr>
+                                <td><span class="badge badge-moderate">Moderate</span></td>
+                                <td>51–100</td>
+                                <td>Acceptable air quality</td>
+                                <td>Sensitive people may need precautions</td>
+                            </tr>
+                            <tr>
+                                <td><span class="badge badge-medium">Medium</span></td>
+                                <td>101–150</td>
+                                <td>Unhealthy for sensitive groups</td>
+                                <td>Reduce prolonged outdoor exertion</td>
+                            </tr>
+                            <tr>
+                                <td><span class="badge badge-high">High</span></td>
+                                <td>151–200</td>
+                                <td>Everyone may experience effects</td>
+                                <td>Wear masks; limit outdoor activity</td>
+                            </tr>
+                            <tr>
+                                <td><span class="badge badge-very-high">Very High</span></td>
+                                <td>201–300</td>
+                                <td>Serious health effects for all</td>
+                                <td>Avoid outdoor activities</td>
+                            </tr>
+                            <tr>
+                                <td><span class="badge badge-hazardous">Hazardous</span></td>
+                                <td>301+</td>
+                                <td>Emergency conditions</td>
+                                <td>Stay indoors; seal windows</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- ── TAB: USERS ─────────────────────────────────── -->
+        <div class="tab-content" id="tab-users">
+            <div class="card">
+                <div class="section-header">
+                    <div class="card-title">👥 Registered Users</div>
+                    <button class="btn btn-outline btn-sm" onclick="loadUsers()">🔄 Refresh</button>
+                </div>
+                <div class="table-wrapper">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Name</th>
+                                <th>Email</th>
+                                <th>Role</th>
+                                <th>Joined</th>
+                            </tr>
+                        </thead>
+                        <tbody id="usersTableBody">
+                            <tr><td colspan="4">
+                                <div class="empty-state">Click "Refresh" to load users</div>
+                            </td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+    </div><!-- /container -->
+</div>
+
+<!-- ── EDIT MODAL ──────────────────────────────────────────── -->
+<div class="modal-overlay" id="editModal" style="display:none">
+    <div class="modal-box">
+        <div class="modal-title">✏️ Edit Pollution Record</div>
+        <form id="editForm" novalidate>
+
+            <div class="input-group">
+                <label>Area / City Name *</label>
+                <input type="text" id="editArea" required>
+            </div>
+
+            <div class="grid-2">
+                <div class="input-group">
+                    <label>AQI Value *</label>
+                    <input type="number" id="editAQI" min="0" max="999" required>
+                </div>
+                <div class="input-group">
+                    <label>Pollution Level</label>
+                    <select id="editLevel">
+                        <option value="Low">Low (0–50)</option>
+                        <option value="Moderate">Moderate (51–100)</option>
+                        <option value="Medium">Medium (101–150)</option>
+                        <option value="High">High (151–200)</option>
+                        <option value="Very High">Very High (201–300)</option>
+                        <option value="Hazardous">Hazardous (301+)</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="input-group">
+                <label>Alert Message</label>
+                <textarea id="editAlert"></textarea>
+            </div>
+
+            <div class="modal-actions">
+                <button type="submit" class="btn btn-primary" style="flex:1">💾 Update</button>
+                <button type="button" class="btn btn-outline" onclick="closeEditModal()">Cancel</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Toast container -->
+<div class="toast-container"></div>
+
+<!-- Chart.js -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+
+<script src="/js/api.js"></script>
+<script src="/js/admin.js"></script>
+</body>
+</html>

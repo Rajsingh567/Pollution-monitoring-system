@@ -1,0 +1,27 @@
+{
+  "name": "pollution-monitoring-system",
+  "version": "1.0.0",
+  "description": "Real-time Pollution Monitoring & Awareness System - SDG 3, 11, 13",
+  "main": "backend/server.js",
+  "scripts": {
+    "start": "node backend/server.js",
+    "dev": "nodemon backend/server.js",
+    "seed": "node seed.js",
+    "build": "echo 'No build step required for this app. Run npm start to launch.'"
+  },
+  "dependencies": {
+    "bcryptjs": "^2.4.3",
+    "cors": "^2.8.5",
+    "dotenv": "^16.3.1",
+    "express": "^4.18.2",
+    "jsonwebtoken": "^9.0.2",
+    "node-fetch": "^2.7.0",
+    "sqlite3": "^6.0.1"
+  },
+  "devDependencies": {
+    "nodemon": "^3.0.2"
+  },
+  "keywords": ["pollution", "AQI", "environment", "SDG", "monitoring"],
+  "author": "Pollution Monitor Team",
+  "license": "MIT"
+}

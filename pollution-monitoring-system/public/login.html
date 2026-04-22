@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login – Pollution Monitor</title>
+    <link rel="stylesheet" href="/css/style.css">
+    <link rel="stylesheet" href="/css/login.css">
+</head>
+<body class="login-page">
+<div class="page-wrapper">
+
+    <div class="login-wrapper">
+
+        <!-- Logo & Title -->
+        <div class="login-logo">
+            <span class="logo-icon">🌍</span>
+            <h1>POLLUTION MONITOR</h1>
+            <p>Real-time Air Quality Monitoring & Awareness</p>
+        </div>
+
+        <!-- Login Card -->
+        <div class="login-card">
+
+            <!-- Auth Tabs -->
+            <div class="auth-tabs">
+                <button class="auth-tab active" data-tab="login" onclick="switchTab('login')">🔐 Sign In</button>
+                <button class="auth-tab" data-tab="register" onclick="switchTab('register')">🚀 Register</button>
+            </div>
+
+            <!-- LOGIN FORM -->
+            <div class="auth-form active" id="login-form">
+                <form id="loginForm" novalidate>
+
+                    <div class="input-group">
+                        <label>Email Address</label>
+                        <div class="input-icon-wrap">
+                            <span class="field-icon">✉️</span>
+                            <input type="email" id="loginEmail" placeholder="you@example.com" autocomplete="email" required>
+                        </div>
+                    </div>
+
+                    <div class="input-group">
+                        <label>Password</label>
+                        <div class="input-icon-wrap">
+                            <span class="field-icon">🔒</span>
+                            <input type="password" id="loginPassword" placeholder="Enter your password" autocomplete="current-password" required>
+                        </div>
+                    </div>
+
+                    <div id="loginMessage" class="form-message"></div>
+
+                    <button type="submit" class="btn btn-primary btn-full" style="margin-top:8px">
+                        🔐 Sign In
+                    </button>
+                </form>
+
+                
+
+            <!-- REGISTER FORM -->
+            <div class="auth-form" id="register-form">
+                <form id="registerForm" novalidate>
+
+                    <div class="input-group">
+                        <label>Full Name</label>
+                        <div class="input-icon-wrap">
+                            <span class="field-icon">👤</span>
+                            <input type="text" id="regName" placeholder="Your full name" required>
+                        </div>
+                    </div>
+
+                    <div class="input-group">
+                        <label>Email Address</label>
+                        <div class="input-icon-wrap">
+                            <span class="field-icon">✉️</span>
+                            <input type="email" id="regEmail" placeholder="you@example.com" required>
+                        </div>
+                    </div>
+
+                    <div class="input-group">
+                        <label>Password</label>
+                        <div class="input-icon-wrap">
+                            <span class="field-icon">🔒</span>
+                            <input type="password" id="regPassword" placeholder="Min. 6 characters" required>
+                        </div>
+                    </div>
+
+                    <div class="input-group">
+                        <label>Confirm Password</label>
+                        <div class="input-icon-wrap">
+                            <span class="field-icon">🔒</span>
+                            <input type="password" id="regConfirm" placeholder="Repeat password" required>
+                        </div>
+                    </div>
+
+                    <div id="registerMessage" class="form-message"></div>
+
+                    <button type="submit" class="btn btn-primary btn-full" style="margin-top:8px">
+                        🚀 Create Account
+                    </button>
+                </form>
+                <p style="text-align:center;margin-top:14px;font-size:0.82rem;color:var(--text-secondary)">
+                    All new accounts are created as <strong style="color:var(--accent)">User</strong> role.
+                </p>
+            </div>
+        </div>
+
+        <!-- SDG Footer -->
+        <div class="sdg-footer">
+            <div>Aligned with UN Sustainable Development Goals</div>
+            <div class="sdg-chips">
+                <span class="sdg-chip">SDG 3 Good Health</span>
+                <span class="sdg-chip">SDG 11 Sustainable Cities</span>
+                <span class="sdg-chip">SDG 13 Climate Action</span>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<!-- Toast container -->
+<div class="toast-container"></div>
+
+<script src="/js/api.js"></script>
+<script src="/js/login.js"></script>
+</body>
+</html>
